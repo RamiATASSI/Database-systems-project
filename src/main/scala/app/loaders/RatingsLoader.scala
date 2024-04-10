@@ -22,10 +22,10 @@ class RatingsLoader(sc : SparkContext, path : String) extends Serializable {
     val ratings = sc.textFile(path).map { line =>
       val fields = line.split('|')
       fields.length match {
-        case 4 => (fields(0).toInt, fields(1).toInt, None.asInstanceOf[Option[Double]], fields(2).toDouble, fields(3).toInt)
-        case 5 => (fields(0).toInt, fields(1).toInt, Some(fields(2).toDouble), fields(3).toDouble, fields(4).toInt)
+        case 4 => (fields(0).toInt, fields(1).toInt, None, fields(2).toDouble, fields(3).toInt)
+        case 5 => (fields(0).toInt, fields(1).toInt, Option(fields(2).toDouble), fields(3).toDouble, fields(4).toInt)
       }
     }
-    ratings
+    ratings.persist()
   }
 }
