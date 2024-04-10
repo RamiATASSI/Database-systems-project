@@ -18,6 +18,16 @@ class MoviesLoader(sc: SparkContext, path: String) extends Serializable {
    *
    * @return The RDD for the given titles
    */
-  def load(): RDD[(Int, String, List[String])] = ???
+  def load(): RDD[(Int, String, List[String])] = {
+    val text_lines = sc.textFile(path)
+    val movies = text_lines.map { line =>
+      val fields = line.replace("\"", "").trim.split('|')
+      val movieId = fields(0).toInt
+      val title = fields(1)
+      val genres = fields.slice(2, fields.length).toList
+      (movieId, title, genres)
+    }
+    movies.persist()
+  }
 }
 

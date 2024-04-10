@@ -1,6 +1,7 @@
 package app
 
-import app._
+import app.*
+import app.loaders.{MoviesLoader, RatingsLoader}
 import org.apache.spark.{SparkConf, SparkContext}
 
 object Main {
@@ -8,6 +9,9 @@ object Main {
     val conf = new SparkConf().setAppName("app").setMaster("local[*]")
     val sc = SparkContext.getOrCreate(conf)
 
-    //your code goes here
+
+    val ratingsLoader = new RatingsLoader(sc, "src/main/resources/ratings_small.csv")
+    val ratings = ratingsLoader.load()
+    ratings.foreach(println)
   }
 }
