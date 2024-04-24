@@ -10,7 +10,7 @@ object Main {
     val sc = SparkContext.getOrCreate(conf)
 
 
-    val ratingsLoader = new MoviesLoader(sc, "src/main/resources/dataset_3/movies_small.csv")
+    val ratingsLoader = new MoviesLoader(sc, "/movies_small.csv")
     val ratings = ratingsLoader.load()
     ratings.foreach(println)
   }

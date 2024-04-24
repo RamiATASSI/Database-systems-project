@@ -1,5 +1,6 @@
 package app.loaders
 
+import app.Main.getClass
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
@@ -19,7 +20,12 @@ class RatingsLoader(sc : SparkContext, path : String) extends Serializable {
    * @return The RDD for the given ratings
    */
   def load() : RDD[(Int, Int, Option[Double], Double, Int)] = {
-    val ratings = sc.textFile(path).map { line =>
+    val resource = getClass.getResource("/dataset_3/" + path)
+    if (resource == null) {
+      throw new IllegalArgumentException(s"Resource not found: /dataset_3/$path")
+    }
+    val full_path = new File(resource.getFile).getPath
+    val ratings = sc.textFile(full_path).map { line =>
       val fields = line.split('|')
       fields.length match {
         case 4 => (fields(0).toInt, fields(1).toInt, None, fields(2).toDouble, fields(3).toInt)

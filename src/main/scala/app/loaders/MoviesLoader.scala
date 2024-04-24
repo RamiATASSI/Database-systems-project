@@ -1,5 +1,6 @@
 package app.loaders
 
+import app.Main.getClass
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 
@@ -19,7 +20,12 @@ class MoviesLoader(sc: SparkContext, path: String) extends Serializable {
    * @return The RDD for the given titles
    */
   def load(): RDD[(Int, String, List[String])] = {
-    val text_lines = sc.textFile(path)
+    val resource = getClass.getResource("/dataset_3/" + path)
+    if (resource == null) {
+      throw new IllegalArgumentException(s"Resource not found: /dataset_3/$path")
+    }
+    val full_path = new File(resource.getFile).getPath
+    val text_lines = sc.textFile(full_path)
     val movies = text_lines.map { line =>
       val fields = line.replace("\"", "").trim.split('|')
       val movieId = fields(0).toInt

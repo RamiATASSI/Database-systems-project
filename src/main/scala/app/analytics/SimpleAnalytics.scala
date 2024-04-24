@@ -20,17 +20,17 @@ class SimpleAnalytics() extends Serializable {
             movie: RDD[(Int, String, List[String])]
           ): Unit = {
     moviesPartitioner = new HashPartitioner(movie.partitions.length)
-    titlesGroupedById = movie.groupBy(_._1).partitionBy(moviesPartitioner).persist()
+    titlesGroupedById = movie.groupBy(_._1).partitionBy(moviesPartitioner).persist(MEMORY_AND_DISK)
 
     ratingsPartitioner = new HashPartitioner(ratings.partitions.length)
     ratingsGroupedByYearByTitle = ratings.groupBy(rdd => {
-      val year = new DateTime(rdd._5 * 1000).getYear
+      val year = new DateTime(rdd._5 * 1000L).getYear
       (year, rdd._2)
-    }).partitionBy(ratingsPartitioner).persist()
+    }).partitionBy(ratingsPartitioner).persist(MEMORY_AND_DISK)
   }
 
   def getNumberOfMoviesRatedEachYear: RDD[(Int, Int)] = ratingsGroupedByYearByTitle.map {
-    case ((year, title), ratings) => (year, ratings.size)
+    case ((year, title), ratings) => (year, 1)
   }.reduceByKey(_ + _)
 
   private def getMostRatedMovieIdEachYear: RDD[(Int, Int)] = {
