@@ -20,9 +20,9 @@ class MoviesLoader(sc: SparkContext, path: String) extends Serializable {
    * @return The RDD for the given titles
    */
   def load(): RDD[(Int, String, List[String])] = {
-    val resource = getClass.getResource("/dataset_3/" + path)
+    val resource = getClass.getResource(path)
     if (resource == null) {
-      throw new IllegalArgumentException(s"Resource not found: /dataset_3/$path")
+      throw new IllegalArgumentException(s"Resource not found: $path")
     }
     val full_path = new File(resource.getFile).getPath
     val text_lines = sc.textFile(full_path)

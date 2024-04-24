@@ -20,9 +20,9 @@ class RatingsLoader(sc : SparkContext, path : String) extends Serializable {
    * @return The RDD for the given ratings
    */
   def load() : RDD[(Int, Int, Option[Double], Double, Int)] = {
-    val resource = getClass.getResource("/dataset_3/" + path)
+    val resource = getClass.getResource(path)
     if (resource == null) {
-      throw new IllegalArgumentException(s"Resource not found: /dataset_3/$path")
+      throw new IllegalArgumentException(s"Resource not found: $path")
     }
     val full_path = new File(resource.getFile).getPath
     val ratings = sc.textFile(full_path).map { line =>
