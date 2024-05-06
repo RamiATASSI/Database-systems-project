@@ -1,7 +1,6 @@
 package app
 
-import app.*
-import app.loaders.{MoviesLoader, RatingsLoader}
+import app.loaders.RatingsLoader
 import org.apache.spark.{SparkConf, SparkContext}
 
 object Main {
@@ -10,8 +9,10 @@ object Main {
     val sc = SparkContext.getOrCreate(conf)
 
 
-    val ratingsLoader = new MoviesLoader(sc, "/movies_small.csv")
+    val ratingsLoader = new RatingsLoader(sc, "/ratings_medium_delta.csv")
     val ratings = ratingsLoader.load()
-    ratings.foreach(println)
+    //   for each user-title pair, count the number of ratings
+    val ratingsCount = ratings.map(rating => ((rating._1, rating._2), 1)).reduceByKey(_ + _).filter(_._2 > 1)
+    ratingsCount.foreach(println)
   }
 }
