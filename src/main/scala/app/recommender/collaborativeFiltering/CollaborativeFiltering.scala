@@ -11,10 +11,13 @@ class CollaborativeFiltering(rank: Int,
 
   // NOTE: set the parameters according to the project description to get reproducible (deterministic) results.
   private val maxIterations = 20
-  private var model = null
+  private var model: MatrixFactorizationModel = _
 
-  def init(ratingsRDD: RDD[(Int, Int, Option[Double], Double, Int)]): Unit = ???
+  def init(ratingsRDD: RDD[(Int, Int, Option[Double], Double, Int)]): Unit = {
+    val ratings = ratingsRDD.map(r => Rating(r._1, r._2, r._4))
+    model = ALS.train(ratings, rank, maxIterations, regularizationParameter, n_parallel, seed)
+  }
 
-  def predict(userId: Int, movieId: Int): Double = ???
+  def predict(userId: Int, movieId: Int): Double = model.predict(userId, movieId)
 
 }
