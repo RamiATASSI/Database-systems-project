@@ -23,17 +23,21 @@ class Recommender(sc: SparkContext, index: LSHIndex, ratings: RDD[(Int, Int, Opt
    * for userID using the BaseLinePredictor
    */
   def recommendBaseline(userId: Int, genre: List[String], K: Int): List[(Int, Double)] = {
-    val similar_movies = nn_lookup.lookup(sc.parallelize(Seq(genre))).first()._2
-    val movie_prediction = similar_movies.map(x => (x._1, baselinePredictor.predict(userId, x._1)))
-    movie_prediction.sortBy(-_._2).take(K)
+    val similar_moviesID = nn_lookup.lookup(sc.parallelize(Seq(genre))).first()._2.map(_._1)
+    val ratedMovies = ratings.filter(_._1 == userId).map(_._2).collect()
+    val unratedSimilarMovies = similar_moviesID.diff(ratedMovies)
+    val movie_prediction = unratedSimilarMovies.map(x => (x, baselinePredictor.predict(userId, x)))
+    movie_prediction.sortWith(_._2 > _._2).take(K)
   }
 
   /**
    * The same as recommendBaseline, but using the CollaborativeFiltering predictor
    */
   def recommendCollaborative(userId: Int, genre: List[String], K: Int): List[(Int, Double)] = {
-    val similar_movies = nn_lookup.lookup(sc.parallelize(Seq(genre))).first()._2
-    val movie_prediction = similar_movies.map(x => (x._1, collaborativePredictor.predict(userId, x._1)))
-    movie_prediction.sortBy(-_._2).take(K)
+    val similar_moviesID = nn_lookup.lookup(sc.parallelize(Seq(genre))).first()._2.map(_._1)
+    val ratedMovies = ratings.filter(_._1 == userId).map(_._2).collect()
+    val unratedSimilarMovies = similar_moviesID.diff(ratedMovies)
+    val movie_prediction = unratedSimilarMovies.map(x => (x, collaborativePredictor.predict(userId, x)))
+    movie_prediction.sortWith(_._2 > _._2).take(K)
   }
 }
